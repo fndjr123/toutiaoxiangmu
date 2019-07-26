@@ -25,6 +25,7 @@
 </template>
 <script>
 import axios from 'axios'
+import '@/vendor/gt.js' // 引入极验js 创建.eslintignonre 忽略这个文件gt.js  代码不跟我们的规范一样所以要忽略他
 export default {
   name: 'AppLome',
   data () {
@@ -46,7 +47,24 @@ export default {
         method: 'GET',
         url: `http://ttapi.research.itcast.cn/mp/v1_0/captchas/${mobile}`
       }).then(res => {
-        console.log(res.data)
+        const { data } = res.data
+        window.initGeetest({
+          gt: data.gt,
+          challenge: data.challenge,
+          offline: !data.success,
+          new_captcha: data.new_captcha,
+          product: 'bind'
+        }, function(captchaObj) {
+          captchaObj.onReady(function() {
+            // 验证码ready之后才能调用verify方法显示验证码
+            captchaObj.verify()
+          }).onSuccess(function() {
+            // your code
+            console.log(captchaObj.getValidate())
+          }).onError(function() {
+            // your code
+          })
+        })
       })
     }
   }
